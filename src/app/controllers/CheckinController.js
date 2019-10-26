@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { differenceInCalendarDays } from 'date-fns';
+import { differenceInCalendarDays, isBefore } from 'date-fns';
 import Student from '../models/Student';
 import Checkin from '../schemas/Checkin';
 import Registration from '../models/Registration';
@@ -12,12 +12,18 @@ class CheckinController {
       return res.status(400).json({ error: 'Student does not exist.' });
     }
     const registration = await Registration.findOne({
-      where: { student_id, canceled_at: { [Op.eq]: null } },
+      where: {
+        student_id,
+        canceled_at: { [Op.eq]: null },
+      },
     });
     if (!registration) {
       return res
         .status(400)
         .json({ error: 'Student does not have a valid registration' });
+    }
+    if (isBefore(registration.end_date, new Date())) {
+      return res.status(403).json({ error: 'registration has expired' });
     }
     /**
      * validatin checkin

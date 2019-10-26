@@ -5,6 +5,7 @@ import StudentController from './app/controllers/StudentController';
 import PlanController from './app/controllers/PlanController';
 import RegistrationController from './app/controllers/RegistrationController';
 import CheckinController from './app/controllers/CheckinController';
+import HelporderController from './app/controllers/HelporderController';
 
 import authMiddleware from './app/middlewares/auth';
 
@@ -15,6 +16,8 @@ routes.post('/sessions', SessionController.store);
 
 routes.post('/students/:id/checkins', CheckinController.store);
 routes.get('/students/:id/checkins', CheckinController.index);
+
+routes.post('/students/:id/help-orders', HelporderController.store);
 
 // middleware global para todas as rotas subsequentes
 routes.use(authMiddleware);
