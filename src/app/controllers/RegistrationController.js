@@ -50,7 +50,7 @@ class RegistrationController {
     }
 
     const registrationExists = await Registration.findOne({
-      where: { student_id },
+      where: { student_id, canceled_at: { [Op.eq]: null } },
     });
     if (registrationExists) {
       return res
