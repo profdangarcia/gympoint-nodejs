@@ -49,7 +49,10 @@ class CheckinController {
   }
 
   async index(req, res) {
-    return res.json();
+    const checkins = await Checkin.find({
+      student_id: req.params.id,
+    }).sort({ createdAt: 'desc' });
+    return res.json(checkins);
   }
 }
 
