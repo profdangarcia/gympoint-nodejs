@@ -1,6 +1,8 @@
 import * as Yup from 'yup';
-import { parseISO, addMonths, isBefore } from 'date-fns';
+import { parseISO, addMonths, isBefore, format } from 'date-fns';
+import pt from 'date-fns/locale/pt';
 import { Op } from 'sequelize';
+import Mail from '../../lib/Mail';
 import Plan from '../models/Plan';
 import Student from '../models/Student';
 import Registration from '../models/Registration';
@@ -83,6 +85,28 @@ class RegistrationController {
       },
     };
 
+    await Mail.sendMail({
+      to: `${student.name} <${student.email}>`,
+      subject: 'Matrícula em GymPoint',
+      // text: 'Você tem um novo cancelamento',
+      template: 'registration',
+      context: {
+        student: student.name,
+        plan: selectedPlan.title,
+        start_date: format(
+          parseISO(start_date),
+          "'dia' dd 'de' MMMM 'de' yyyy",
+          {
+            locale: pt,
+          }
+        ),
+        end_date: format(end_date, "'dia' dd 'de' MMMM 'de' yyyy", {
+          locale: pt,
+        }),
+        price: total,
+      },
+    });
+
     return res.json(returnedRegistration);
   }
 
@@ -150,7 +174,7 @@ class RegistrationController {
         {
           model: Student,
           as: 'student',
-          attributes: ['name', 'email'],
+          attributes: ['name'],
         },
       ],
       where: { canceled_at: { [Op.eq]: null }, id: req.params.id },
