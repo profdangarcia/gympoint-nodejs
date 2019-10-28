@@ -1,8 +1,4 @@
 import * as Yup from 'yup';
-// import { parseISO, addMonths, isBefore, format } from 'date-fns';
-// import pt from 'date-fns/locale/pt';
-// import { Op } from 'sequelize';
-// import Mail from '../../lib/Mail';
 import Student from '../models/Student';
 import Helporder from '../models/Helporder';
 
@@ -28,6 +24,25 @@ class HelporderController {
     });
 
     return res.json({ id, question, student_id, student_name: student.name });
+  }
+
+  async index(req, res) {
+    const student_id = req.params.id;
+
+    const student = await Student.findByPk(student_id);
+    if (!student) {
+      return res.status(400).json({ error: 'invalid student' });
+    }
+
+    const questions = await Helporder.findAll({
+      where: { student_id },
+      attributes: ['id', 'student_id', 'question'],
+      include: [
+        { model: Student, as: 'student', attributes: ['name', 'email'] },
+      ],
+    });
+
+    return res.json(questions);
   }
 }
 
